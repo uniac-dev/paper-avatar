@@ -75,7 +75,7 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
        float ridges = cutPaperFiber(across * 196.0 + 1.6 * sin(across * 48.0));
        float filament = cutPaperFiber(across * 621.0 + 2.4 * sin(along * 6.0 + across * 57.0));
        float torn = smoothstep(-0.8, 0.8, sin(along * 9.0 + across * 21.0));
-       diffuseColor.rgb *= 0.99 + (0.057 + 0.044 * torn) * ridges + 0.027 * filament;`
+       diffuseColor.rgb *= 0.997 + (0.003 + 0.004 * torn) * ridges + 0.003 * filament;`
       );
   };
   ink.color.set('#32303a');
@@ -313,274 +313,160 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
     return points.map(([x, y, z]) => [x * s, y, z]);
   }
 
-  // The forehead, cheek, jaw and chin form a continuous mask. A separate
-  // folded nose is let into the front; its return closes the profile.
+  // Three broad sheets meet at the temples and taper into a cut chin.
+  // The crease running from cheekbone to chin separates the face and side planes.
   const faceRows = [
-    // scalp under the hair; bridge; tip; mouth plane; chin; underside
     [
       [0, 2.393, 0.148],
-      [0.083, 2.385, 0.148],
-      [0.201, 2.348, 0.145],
-      [0.331, 2.256, 0.137],
-      [0.365, 2.171, 0.094],
-      [0.318, 2.221, -0.162],
-      [0.219, 2.32, -0.279],
+      [0.126, 2.385, 0.148],
+      [0.247, 2.329, 0.144],
+      [0.361, 2.191, 0.089],
+      [0.312, 2.221, -0.162],
+      [0.217, 2.32, -0.279],
       [0, 2.37, -0.303],
     ],
     [
-      [0, 2.172, 0.383],
-      [0.081, 2.171, 0.367],
-      [0.214, 2.147, 0.339],
-      [0.348, 2.103, 0.271],
-      [0.433, 2.075, 0.11],
+      [0, 2.175, 0.389],
+      [0.151, 2.175, 0.386],
+      [0.296, 2.149, 0.371],
+      [0.433, 2.075, 0.144],
       [0.421, 2.101, -0.124],
       [0.279, 2.139, -0.295],
       [0, 2.158, -0.347],
     ],
     [
-      [0, 2.023, 0.423],
-      [0.078, 2.014, 0.387],
-      [0.206, 2.009, 0.357],
-      [0.356, 1.986, 0.286],
-      [0.458, 1.996, 0.118],
-      [0.454, 1.987, -0.128],
-      [0.314, 1.995, -0.319],
-      [0, 1.999, -0.374],
+      [0, 1.923, 0.435],
+      [0.157, 1.923, 0.433],
+      [0.388, 1.88, 0.407],
+      [0.465, 1.884, 0.139],
+      [0.445, 1.919, -0.126],
+      [0.307, 1.945, -0.321],
+      [0, 1.96, -0.364],
     ],
     [
-      [0, 1.835, 0.416],
-      [0.076, 1.844, 0.408],
-      [0.223, 1.873, 0.415],
-      [0.375, 1.889, 0.352],
-      [0.472, 1.871, 0.099],
-      [0.446, 1.85, -0.14],
-      [0.313, 1.837, -0.309],
-      [0, 1.837, -0.353],
+      [0, 1.589, 0.435],
+      [0.107, 1.59, 0.433],
+      [0.271, 1.626, 0.421],
+      [0.425, 1.665, 0.123],
+      [0.39, 1.646, -0.14],
+      [0.255, 1.624, -0.271],
+      [0, 1.62, -0.314],
     ],
     [
-      [0, 1.653, 0.444],
-      [0.091, 1.682, 0.432],
-      [0.204, 1.69, 0.394],
-      [0.337, 1.706, 0.304],
-      [0.45, 1.724, 0.075],
-      [0.421, 1.711, -0.136],
-      [0.282, 1.699, -0.284],
-      [0, 1.682, -0.321],
+      [0, 1.202, 0.434],
+      [0.056, 1.203, 0.434],
+      [0.118, 1.205, 0.429],
+      [0.346, 1.414, 0.114],
+      [0.279, 1.406, -0.131],
+      [0.168, 1.396, -0.218],
+      [0, 1.4, -0.239],
     ],
     [
-      [0, 1.605, 0.439],
-      [0.09, 1.625, 0.426],
-      [0.188, 1.602, 0.392],
-      [0.313, 1.585, 0.293],
-      [0.415, 1.572, 0.049],
-      [0.363, 1.56, -0.138],
-      [0.228, 1.55, -0.264],
-      [0, 1.546, -0.282],
-    ],
-    [
-      [0, 1.43, 0.442],
-      [0.084, 1.424, 0.437],
-      [0.168, 1.417, 0.407],
-      [0.284, 1.445, 0.282],
-      [0.352, 1.472, 0.025],
-      [0.303, 1.442, -0.139],
-      [0.181, 1.444, -0.229],
-      [0, 1.449, -0.254],
-    ],
-    [
-      [0, 1.25, 0.399],
-      [0.066, 1.252, 0.398],
-      [0.14, 1.26, 0.378],
-      [0.206, 1.299, 0.304],
-      [0.294, 1.322, 0.076],
-      [0.254, 1.356, -0.092],
-      [0.165, 1.388, -0.19],
-      [0, 1.401, -0.207],
-    ],
-    [
-      [0, 1.22, 0.328],
-      [0.058, 1.221, 0.324],
-      [0.123, 1.235, 0.31],
-      [0.177, 1.262, 0.252],
-      [0.25, 1.297, 0.057],
-      [0.223, 1.341, -0.085],
-      [0.149, 1.37, -0.167],
-      [0, 1.387, -0.18],
+      [0, 1.18, 0.369],
+      [0.055, 1.183, 0.367],
+      [0.116, 1.193, 0.365],
+      [0.305, 1.375, 0.095],
+      [0.258, 1.378, -0.116],
+      [0.153, 1.375, -0.2],
+      [0, 1.385, -0.225],
     ],
   ];
+
   for (const side of [-1, 1]) {
     const points = faceRows.map((row) => mirror(row, side).map(vector));
-    const g = paperGeometry(portrait, 'Face', skin);
-    const panelNormals = points
-      .slice(0, -1)
-      .map((row, r) =>
-        row
-          .slice(0, -1)
-          .map((point, j) =>
-            normalOf([point, row[j + 1], points[r + 1][j + 1], points[r + 1][j]]).multiplyScalar(-side)
-          )
-      );
-    for (let r = 0; r < points.length - 1; r++)
-      for (let j = 0; j < points[0].length - 1; j++) {
-        const faceNormal = panelNormals[r][j];
-        const corners = [
-          [r, j],
-          [r, j + 1],
-          [r + 1, j + 1],
-          [r + 1, j],
-        ];
-        const ns = corners.map(([row, col]) => {
-          const n = new T.Vector3();
-          for (const rr of [row - 1, row])
-            for (const cc of [col - 1, col]) {
-              if (rr < 0 || rr >= points.length - 1 || cc < 0 || cc >= points[0].length - 1) continue;
-              // The ridge is pronounced at the zygoma, then eases into the
-              // jaw. Carry some reflected light across either side of it.
-              const oppositeCheek = col === 3 && j < 3 !== cc < 3;
-              const softness = row < 2 || row > 6 ? 0.7 : 0.21;
-              n.addScaledVector(panelNormals[rr][cc], oppositeCheek ? softness : 1);
-            }
-          n.normalize();
-          if (col === 0) {
-            n.x = 0;
-            n.normalize();
-          }
-          return n;
-        });
-        const quad = corners.map(([rr, cc]) => points[rr][cc]);
-        g.polygon(quad, faceNormal, j < 3 ? 1 : 0.985, ns);
+    const face = paperGeometry(portrait, 'Face', skin);
+    const frontNormal = vector([0, -0.055, 1]).normalize();
+    const cheekNormal = vector([0.795 * side, 0.06, 0.605]).normalize();
+    for (let row = 0; row < points.length - 1; row++) {
+      for (let col = 0; col < points[row].length - 1; col++) {
+        const quad = [points[row][col], points[row][col + 1], points[row + 1][col + 1], points[row + 1][col]];
+        const normal = normalOf(quad).multiplyScalar(-side);
+        // Keep the front quiet, the cheek crease sharp, and the chin hem narrow.
+        if (col < 2 && row < 4) normal.copy(frontNormal);
+        if (col === 2 && row < 4) normal.copy(cheekNormal);
+        if (col < 3 && row === points.length - 2) normal.lerp(frontNormal, 0.28).normalize();
+        face.polygon(quad, normal, row === points.length - 2 ? 0.96 : 1);
       }
-    g.finish();
-    const last = points[points.length - 1],
-      base = new T.Vector3(0, 1.32, -0.02);
+    }
+    face.finish();
+
+    const jaw = points.at(-1)!.map((point) => point.toArray());
     cut(
-      portrait,
-      'Under jaw',
-      skin,
-      [...last.map((p) => p.toArray()), base.toArray()],
-      last.slice(1).map((_, i) => [0.82, i, i + 1, last.length])
+      portrait, 'Under jaw', skin,
+      [...jaw, [0, 1.328, -0.062]],
+      jaw.slice(1).map((_, i) => [0.84, i, i + 1, jaw.length])
     );
 
-    // A folded outer helix surrounds a shallow triangular concha. The
-    // lobe sits in front of the nape so an earring has a genuine attachment.
-    const rim = [
-      [0.422, 1.863, 0.078],
-      [0.492, 1.92, 0.06],
-      [0.547, 1.893, 0.019],
-      [0.557, 1.817, -0.011],
-      [0.548, 1.736, -0.002],
-      [0.511, 1.652, 0.055],
-      [0.466, 1.619, 0.096],
-      [0.444, 1.656, 0.116],
-      [0.455, 1.725, 0.111],
-    ];
-    const valley = [
-      [0.457, 1.843, 0.074],
-      [0.494, 1.868, 0.065],
-      [0.517, 1.85, 0.039],
-      [0.526, 1.806, 0.023],
-      [0.518, 1.76, 0.033],
-      [0.497, 1.699, 0.063],
-      [0.48, 1.666, 0.085],
-      [0.469, 1.678, 0.095],
-      [0.467, 1.74, 0.089],
-    ];
-    strip(portrait, 'Folded ear', skin, [mirror(rim, side), mirror(valley, side)], {
-      closed: true,
-      steps: 2,
-      tones: [0.98],
-      edge: 0.008,
-    });
-    const basin = valley.map(([x, y, z]) => [(x - 0.012) * side, y, z]);
-    const lip = mirror(valley, side);
+    // Plain elliptical ear cut from the same matte stock as the face.
+    // Its lower tip overlaps the earring's attachment point.
+    const rim = mirror([
+      [0.422, 1.858, 0.105],
+      [0.469, 1.909, 0.08],
+      [0.522, 1.9, 0.039],
+      [0.552, 1.866, 0.012],
+      [0.552, 1.803, 0.006],
+      [0.533, 1.725, 0.038],
+      [0.503, 1.662, 0.081],
+      [0.472, 1.63, 0.119],
+      [0.44, 1.656, 0.128],
+    ], side);
+    const back = rim.map(([x, y, z]) => [x - 0.042 * side, y + 0.009, z - 0.037]);
     cut(
-      portrait,
-      'Ear hollow',
-      skin,
-      [...lip, ...basin],
+      portrait, 'Folded ear', skin,
+      [...rim, ...back],
       [
-        [0.89, ...basin.map((_, i) => i + basin.length)],
-        ...lip.map((_, i) => [0.91, i, (i + 1) % lip.length, ((i + 1) % lip.length) + lip.length, i + lip.length]),
-      ]
+        [1, ...rim.map((_, i) => i)],
+        [0.89, ...rim.map((_, i) => back.length * 2 - 1 - i)],
+        ...rim.map((_, i) => [0.92, i, (i + 1) % rim.length, ((i + 1) % rim.length) + rim.length, i + rim.length]),
+      ],
     );
-    const baseRing = rim.map(([x, y, z]) => [(x - 0.069) * side, y - 0.005, z - 0.023]);
-    strip(portrait, 'Ear lobe return', skin, [baseRing, mirror(rim, side)], {
-      closed: true,
-      steps: 2,
-      tones: [0.89],
-      edge: 0,
-    });
   }
-  const bridgeLeft = [
-    [-0.025, 2.062, 0.386],
-    [-0.052, 1.976, 0.388],
-    [-0.077, 1.828, 0.412],
-    [-0.113, 1.682, 0.432],
-    [-0.102, 1.62, 0.437],
-  ];
-  const noseLeft = [
-    [-0.012, 2.057, 0.396],
-    [-0.021, 1.971, 0.448],
-    [-0.028, 1.824, 0.517],
-    [-0.041, 1.713, 0.566],
-    [-0.038, 1.666, 0.574],
-  ];
-  const noseRight = [
-    [0.01, 2.057, 0.398],
-    [0.017, 1.971, 0.45],
-    [0.025, 1.824, 0.518],
-    [0.033, 1.713, 0.567],
-    [0.031, 1.668, 0.575],
-  ];
-  const bridgeRight = [
-    [0.026, 2.061, 0.386],
-    [0.052, 1.977, 0.388],
-    [0.077, 1.83, 0.412],
-    [0.108, 1.691, 0.429],
-    [0.097, 1.629, 0.437],
-  ];
-  strip(portrait, 'Nose', skin, [bridgeLeft, noseLeft, noseRight, bridgeRight], {
-    steps: 3,
-    softFolds: 0.23,
-    tones: [1.015, 1, 0.96],
-    edge: 0,
-  });
+
+  // Two leaves fold toward a narrow bevel above a cut undercut.
+  // The brighter bevel stays visible in the front and three-quarter views.
   cut(
-    portrait,
-    'Nose return',
-    skin,
-    [bridgeLeft.at(-1)!, noseLeft.at(-1)!, noseRight.at(-1)!, bridgeRight.at(-1)!, [0, 1.605, 0.434]],
-    [[0.84, 0, 1, 2, 3, 4]]
+    portrait, 'Folded nose', skin,
+    [
+      [-0.002, 2.067, 0.407],
+      [-0.133, 1.599, 0.421],
+      [-0.109, 1.599, 0.576],
+      [-0.026, 1.595, 0.603],
+      [0.108, 1.581, 0.43],
+      [0, 1.565, 0.416],
+    ],
+    [
+      [1, 0, 1, 2],
+      [1.18, 0, 2, 3],
+      [0.92, 0, 3, 4],
+      [0.82, 1, 5, 4, 3, 2],
+    ],
   );
 
-  // Neck and lower jaw overlap through the whole gaze range.
+  // Overlap the underside of the mask through the full head-turn range.
   const neckBottom = [
-    [-0.23, 0.76, 0.126],
-    [0, 0.736, 0.18],
-    [0.235, 0.79, 0.121],
-    [0.236, 0.83, -0.105],
-    [0, 0.83, -0.207],
-    [-0.212, 0.81, -0.104],
+    [-0.223, 0.76, 0.146],
+    [0, 0.736, 0.172],
+    [0.23, 0.79, 0.123],
+    [0.232, 0.83, -0.105],
+    [0, 0.83, -0.202],
+    [-0.211, 0.81, -0.103],
   ];
   const neckTop = [
-    [-0.189, 1.455, 0.127],
-    [0, 1.461, 0.176],
-    [0.192, 1.45, 0.086],
-    [0.205, 1.415, -0.127],
+    [-0.181, 1.453, 0.141],
+    [0, 1.461, 0.168],
+    [0.194, 1.45, 0.105],
+    [0.204, 1.415, -0.127],
     [0, 1.4, -0.212],
     [-0.194, 1.42, -0.094],
   ];
   cut(
-    torso,
-    'Neck',
-    skin,
+    torso, 'Neck', skin,
     [...neckBottom, ...neckTop],
-    neckBottom.map((_, i) => [0.76, i, (i + 1) % 6, ((i + 1) % 6) + 6, i + 6])
+    neckBottom.map((_, i) => [0.91, i, (i + 1) % 6, ((i + 1) % 6) + 6, i + 6]),
   );
 
-  function coatBody(parent: Part, stock: Stock, kind: 'jacket' | 'wrap' | 'crew') {
+  function coatBody(parent: Part, stock: Stock, kind: 'wrap' | 'crew') {
     const [hem, shoulder, seamY, depth] = {
-      jacket: [1.065, 0.95, 0.58, 0.382],
       wrap: [1.022, 0.925, 0.65, 0.37],
       crew: [1.015, 0.9, 0.55, 0.391],
     }[kind];
@@ -629,20 +515,130 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
       tones: [0.99, 1],
       edge: 0,
       tension: 0.32,
-      softFolds: 0.91,
+      softFolds: 0.59,
       panelTones: [1, 1, 0.986, 0.963, 0.956, 0.967, 1, 1, 1, 1, 0.962, 0.946, 0.968, 0.977, 1, 1],
     });
     cut(parent, 'Cut bust base', stock, bottom, [[0.74, ...bottom.map((_, i) => i)]]);
     return chest;
   }
 
+  function foldedJacket(node: Part) {
+    // The front meets as two broad panels with a single center join. The
+    // sleeve breaks away along the diagonal from shoulder point to cut hem.
+    const seam = [0.14, 0.584, 0.386];
+    const hemSeam = [0.2, 0, 0.43];
+    const leftTop = [-0.573, 0.873, 0.238];
+    const leftShoulder = [-1.028, 0.64, 0.16];
+    const leftHem = [-0.799, 0, 0.249];
+    const rightTop = [0.534, 0.863, 0.243];
+    const rightShoulder = [0.908, 0.607, 0.174];
+    const rightHem = [0.924, 0, 0.251];
+    const leftEdge = [-1.205, 0, 0.072];
+    const rightEdge = [1.065, 0, 0.088];
+
+    cut(node, 'Left front panel', cloth,
+      [hemSeam, seam, leftTop, leftShoulder, leftHem], [[1, 0, 1, 2, 3, 4]]);
+    cut(node, 'Right front panel', cloth,
+      [hemSeam, rightHem, rightShoulder, rightTop, seam], [[0.996, 0, 1, 2, 3, 4]]);
+    cut(node, 'Folded sleeve panels', cloth,
+      [leftShoulder, leftEdge, leftHem, rightShoulder, rightHem, rightEdge],
+      [[0.95, 0, 1, 2], [0.97, 3, 4, 5]]);
+
+    const backEdges = [
+      leftEdge,
+      [-1.087, 0, -0.124],
+      [-0.723, 0, -0.302],
+      [0, 0, -0.379],
+      [0.748, 0, -0.302],
+      [0.989, 0, -0.123],
+      rightEdge,
+    ];
+    const backShoulders = [
+      leftShoulder,
+      [-0.917, 0.667, -0.032],
+      [-0.694, 0.779, -0.181],
+      [0, 0.97, -0.231],
+      [0.628, 0.777, -0.186],
+      [0.840, 0.656, -0.003],
+      rightShoulder,
+    ];
+    const nape = [
+      leftTop,
+      [-0.419, 0.915, -0.047],
+      [-0.27, 0.982, -0.196],
+      [0, 0.993, -0.244],
+      [0.277, 0.982, -0.197],
+      [0.406, 0.925, -0.056],
+      rightTop,
+    ];
+    const length = backEdges.length;
+    const sideFaces = backEdges.slice(1).map((_, i) => [0.96, i, i + 1, length + i + 1, length + i]);
+    const backFaces = backEdges.slice(1).map((_, i) => [0.98, length + i, length + i + 1, 2 * length + i + 1, 2 * length + i]);
+    cut(node, 'Back and shoulder panels', cloth, [...backEdges, ...backShoulders, ...nape], [...sideFaces, ...backFaces]);
+    const hem = [hemSeam, leftHem, ...backEdges, rightHem];
+    cut(node, 'Cut bust base', cloth, hem, [[0.76, ...hem.map((_, i) => i)]]);
+
+    // The dark liner wraps the neck and shows through the V. Its point
+    // sits beneath the shared junction of the two free collar leaves.
+    const shirtEdge = [
+      [-0.254, 0.927, 0.077],
+      [-0.169, 0.924, 0.158],
+      [0, 0.893, 0.202],
+      [0.166, 0.911, 0.174],
+      [0.276, 0.963, 0.08],
+    ];
+    cut(node, 'Dark undershirt', shirt, [...shirtEdge, [0.14, 0.573, 0.397]],
+      shirtEdge.slice(1).map((_, i) => [0.98, i, shirtEdge.length, i + 1]));
+
+    const leftCrown = [-0.3, 1.144, 0.18];
+    const rightCrown = [0.282, 1.098, 0.158];
+    const innerNape = [
+      leftCrown,
+      [-0.199, 1.114, -0.004],
+      [-0.216, 1.052, -0.158],
+      [0, 1.082, -0.207],
+      [0.225, 1.056, -0.155],
+      [0.243, 1.094, -0.015],
+      rightCrown,
+    ];
+    strip(node, 'Standing collar around the nape', cloth, [nape, innerNape], {
+      steps: 2, tones: [0.73], tension: 0.22, edge: 0.009, lined: true
+    });
+
+    // Each leaf is a broad card with a narrow cut edge. The left leaf sits
+    // just in front of the right at the center to produce a contact shadow.
+    const leftJoin = [0.148, 0.6, 0.475];
+    const rightJoin = [0.140, 0.598, 0.456];
+    cut(node, 'Left collar leaf', cloth,
+      [leftCrown, [-0.575, 0.894, 0.286], [-0.256, 0.295, 0.485], leftJoin],
+      [[1.023, 0, 1, 2, 3]], 0.010);
+    cut(node, 'Right collar leaf', cloth,
+      [rightCrown, rightJoin, [0.693, 0.302, 0.469], [0.533, 0.859, 0.309]],
+      [[1.006, 0, 1, 2, 3]], 0.010);
+
+    const front = paperGeometry(node, 'Paper front join', cloth);
+    const edge = vector(hemSeam);
+    const point = vector(seam);
+    const join = [
+      edge.clone().add(new T.Vector3(-0.004, 0, 0.001)),
+      edge.clone().add(new T.Vector3(0.003, 0, 0.001)),
+      point.clone().add(new T.Vector3(0.003, 0, 0.001)),
+      point.clone().add(new T.Vector3(-0.004, 0, 0.001)),
+    ];
+    front.polygon(join, normalOf(join), 0.72);
+    front.finish();
+  }
+
   const outfits: Record<string, Part> = {};
   for (const style of ['jacket', 'wrap', 'crew'] as const) {
     const node = (outfits[style] = group(torso, style));
+    if (style === 'jacket') {
+      foldedJacket(node);
+      continue;
+    }
     const chest = coatBody(node, cloth, style);
     const ray = new T.Raycaster(new T.Vector3(), new T.Vector3(0, 0, -1));
-    // Fit welts and bindings to this garment's actual curved front. The
-    // third pattern coordinate measures how far the folded paper lifts away.
+    // The third pattern coordinate is the distance above this garment’s front surface.
     const fitChest = (pattern: Pattern) =>
       pattern.map(([x, y, lift]) => {
         ray.ray.origin.set(x, y, 1.5);
@@ -650,265 +646,37 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
         if (!surface) throw new Error(`Garment pattern outside its shell at ${x}, ${y}`);
         return [x, y, surface.point.z + lift];
       });
-    if (style === 'jacket') {
-      const neckline = [
-        [-0.234, 0.93, 0.088],
-        [-0.207, 0.95, 0.122],
-        [-0.192, 0.962, 0.144],
-        [-0.148, 0.948, 0.189],
-        [-0.102, 0.926, 0.22],
-        [0.005, 0.912, 0.245],
-        [0.119, 0.924, 0.209],
-        [0.168, 0.945, 0.167],
-        [0.195, 0.966, 0.131],
-        [0.219, 0.956, 0.103],
-        [0.24, 0.932, 0.076],
-      ];
-      const rootV = [0.136, 0.538, 0.348];
-      cut(
-        node,
-        'Undershirt',
-        shirt,
-        [...neckline, rootV],
-        neckline.slice(1).map((_, i) => [0.98, i, i + 1, neckline.length])
+    function foldedSeam(name: string, guide: Pattern, side = 1) {
+      const curve = new T.SplineCurve(guide.map(([x, y]) => new T.Vector2(x, y)));
+      const points = curve.getPoints(32);
+      const rails = [0, 0.006 * side].map((offset) =>
+        fitChest(points.map(({ x, y }) => [x + offset, y, 0.009]))
       );
+      strip(node, name, cloth, rails, { steps: 1, tones: [0.84], edge: 0, tension: 0.15 });
+    }
+    if (style === 'wrap') {
+      const under = [
+        [-0.252, 0.998, 0.127],
+        [-0.422, 0.839, 0.248],
+        [-0.034, 0.521, 0.391],
+        [0.121, 0.609, 0.357],
+        [-0.046, 0.773, 0.265],
+      ];
+      cut(node, 'Wrap underlap', cloth, under, [[0.87, 0, 1, 2, 3, 4]], 0.007);
 
-      // The collars are folded over the stand. Their outer points sit just
-      // clear of the chest, opening a shallow shadow beneath each free tip.
-      const leftHead = [
-        [-0.148, 0.998, -0.142],
-        [-0.196, 1.018, -0.07],
-        [-0.211, 1.017, 0.059],
-        [-0.206, 0.99, 0.154],
-        [-0.174, 0.949, 0.258],
+      // A wide folded facing crosses the garment in a single sheet.
+      const facing = [
+        [0.176, 1.052, 0.182],
+        [-0.066, 0.745, 0.303],
+        [-0.568, 0.232, 0.485],
+        [0.509, 0.787, 0.395],
       ];
-      const leftShoulder = [
-        [-0.225, 0.987, -0.158],
-        [-0.323, 0.96, -0.045],
-        [-0.408, 0.922, 0.066],
-        [-0.455, 0.853, 0.18],
-        [-0.482, 0.766, 0.28],
-      ];
-      const frontLeft = [
-        [
-          [-0.482, 0.766, 0.221],
-          [-0.454, 0.701, 0.244],
-          [-0.397, 0.565, 0.286],
-          [-0.315, 0.405, 0.338],
-          [-0.248, 0.296, 0.372],
-        ],
-        [
-          [-0.344, 0.855, 0.216],
-          [-0.317, 0.771, 0.234],
-          [-0.249, 0.644, 0.284],
-          [-0.158, 0.516, 0.337],
-          [-0.08, 0.412, 0.387],
-        ],
-        [
-          [-0.174, 0.949, 0.199],
-          [-0.117, 0.862, 0.236],
-          [-0.051, 0.758, 0.273],
-          [0.044, 0.655, 0.314],
-          [0.136, 0.553, 0.357],
-        ],
-      ];
-      // Cut the collar stand and leaf from one net. Sharing the rail
-      // at the roll line keeps the silhouette continuous as the head turns.
-      function collar(name: string, outerStand: Pattern, insideStand: Pattern, leaf: Pattern[]) {
-        const middleStand = outerStand.map((point, i) => vector(point).lerp(vector(insideStand[i]), 0.5).toArray());
-        const stands = [outerStand, middleStand, insideStand];
-        const joined = leaf.map((rail, row) => [
-          ...stands[row].slice(0, -1),
-          ...rail.map(([x, y, z]) => [x, y, z + 0.059]),
-        ]);
-        strip(node, name, cloth, joined, { steps: 4, tones: [0.99, 1.02], edge: 0.014, lined: true, tension: 0.28 });
-      }
-      collar('Left collar fold', leftShoulder, leftHead, frontLeft);
-      const rightHead = [
-        [0.119, 1.001, -0.151],
-        [0.172, 1.02, -0.09],
-        [0.222, 1.02, 0.011],
-        [0.242, 0.998, 0.095],
-        [0.247, 0.952, 0.218],
-      ];
-      const rightShoulder = [
-        [0.217, 0.984, -0.159],
-        [0.307, 0.955, -0.065],
-        [0.396, 0.919, 0.032],
-        [0.467, 0.85, 0.133],
-        [0.532, 0.768, 0.255],
-      ];
-      const frontRight = [
-        [
-          [0.247, 0.952, 0.159],
-          [0.228, 0.862, 0.216],
-          [0.204, 0.752, 0.259],
-          [0.17, 0.643, 0.311],
-          [0.136, 0.553, 0.357],
-        ],
-        [
-          [0.403, 0.871, 0.182],
-          [0.408, 0.774, 0.218],
-          [0.413, 0.637, 0.274],
-          [0.429, 0.511, 0.319],
-          [0.461, 0.408, 0.357],
-        ],
-        [
-          [0.532, 0.768, 0.196],
-          [0.54, 0.671, 0.23],
-          [0.553, 0.543, 0.271],
-          [0.572, 0.421, 0.312],
-          [0.602, 0.306, 0.35],
-        ],
-      ];
-      collar('Right collar fold', rightHead, rightShoulder, frontRight);
-      // The front button stand emerges from the collar and continues to the
-      // cut hem. Its narrow return catches a separate highlight.
-      const crease = [
-        [0.119, 0.536],
-        [0.111, 0.467],
-        [0.105, 0.401],
-        [0.098, 0.333],
-        [0.093, 0.266],
-        [0.087, 0.199],
-        [0.079, 0.133],
-        [0.074, 0.065],
-        [0.068, 0.001],
-      ];
-      strip(
-        node,
-        'Folded front placket',
-        cloth,
-        [
-          fitChest(crease.map(([x, y]) => [x - 0.052, y, -0.006])),
-          fitChest(crease.map(([x, y]) => [x - 0.01, y, 0.022])),
-          fitChest(crease.map(([x, y]) => [x, y, 0.011])),
-        ],
-        { steps: 2, tones: [0.88, 1.03], edge: 0.004, tension: 0.2 }
-      );
-
-      strip(
-        node,
-        'Folded breast pocket',
-        cloth,
-        [
-          fitChest([
-            [0.372, 0.197, 0.012],
-            [0.373, 0.163, 0.014],
-            [0.373, 0.122, 0.016],
-            [0.396, 0.09, 0.014],
-          ]),
-          fitChest([
-            [0.515, 0.217, 0.016],
-            [0.515, 0.169, 0.02],
-            [0.514, 0.126, 0.018],
-            [0.513, 0.088, 0.014],
-          ]),
-          fitChest([
-            [0.664, 0.236, 0.014],
-            [0.659, 0.192, 0.017],
-            [0.657, 0.148, 0.016],
-            [0.634, 0.106, 0.014],
-          ]),
-        ],
-        { steps: 2, tones: [0.955, 0.945], edge: 0.005, tension: 0.2 }
-      );
-      const welt = [
-        [0.37, 0.201],
-        [0.469, 0.215],
-        [0.569, 0.228],
-        [0.668, 0.241],
-      ];
-      strip(
-        node,
-        'Breast pocket welt',
-        cloth,
-        [
-          fitChest(welt.map(([x, y]) => [x, y - 0.033, 0.024])),
-          fitChest(welt.map(([x, y]) => [x, y - 0.008, 0.033])),
-          fitChest(welt.map(([x, y]) => [x, y, 0.028])),
-        ],
-        { steps: 3, tones: [0.91, 1.025], edge: 0.004, lined: true }
-      );
-    } else if (style === 'wrap') {
-      strip(
-        node,
-        'Underlapping collar',
-        cloth,
-        [
-          fitChest([
-            [-0.285, 0.907, 0.018],
-            [-0.356, 0.834, 0.021],
-            [-0.324, 0.768, 0.026],
-            [-0.202, 0.663, 0.021],
-            [0.06, 0.516, 0.022],
-          ]),
-          fitChest([
-            [-0.189, 0.903, 0.021],
-            [-0.161, 0.831, 0.027],
-            [-0.085, 0.751, 0.029],
-            [0.021, 0.681, 0.029],
-            [0.128, 0.621, 0.021],
-          ]),
-          fitChest([
-            [-0.164, 0.901, 0.006],
-            [-0.135, 0.83, 0.011],
-            [-0.054, 0.749, 0.012],
-            [0.046, 0.686, 0.012],
-            [0.141, 0.639, 0.011],
-          ]),
-        ],
-        { steps: 3, tones: [0.68, 0.92], edge: 0.006, tension: 0.13 }
-      );
-      const overlap = [
-        [0.237, 0.844],
-        [0.153, 0.763],
-        [-0.028, 0.623],
-        [-0.269, 0.469],
-        [-0.497, 0.309],
-        [-0.693, 0.146],
-        [-0.715, 0.001],
-      ];
-      strip(
-        node,
-        'Wrap front fold',
-        cloth,
-        [
-          fitChest(overlap.map(([x, y]) => [x - 0.028, y, 0.006])),
-          fitChest(overlap.map(([x, y]) => [x, y, 0.019])),
-          fitChest(overlap.map(([x, y]) => [x + 0.032, y, 0.012])),
-        ],
-        { steps: 3, tones: [0.88, 1.025], edge: 0.004, tension: 0.2 }
-      );
-      strip(
-        node,
-        'Wrap facing',
-        lining,
-        [
-          [
-            [0.14, 1.049, 0.012],
-            [0.294, 0.986, 0.15],
-            [0.385, 0.882, 0.239],
-            [0.494, 0.751, 0.304],
-            [-0.692, 0.143, 0.421],
-          ],
-          [
-            [0.124, 1.032, 0.01],
-            [0.18, 0.961, 0.175],
-            [0.21, 0.834, 0.278],
-            [0.106, 0.698, 0.339],
-            [-0.709, 0.129, 0.427],
-          ],
-          [
-            [0.089, 1.015, 0.008],
-            [0.075, 0.955, 0.21],
-            [-0.045, 0.861, 0.296],
-            [-0.302, 0.632, 0.374],
-            [-0.725, 0.119, 0.413],
-          ],
-        ],
-        { steps: 4, tones: [0.97, 1.04], edge: 0.014, tension: 0.15, lined: true }
-      );
+      cut(node, 'Folded wrap facing', lining, facing, [[1, 0, 1, 2, 3]], 0.011);
+      foldedSeam('Wrap closure join', [
+        [-0.53, 0.254],
+        [-0.627, 0.132],
+        [-0.738, 0.002],
+      ]);
     } else {
       const rim = [
         [0, 0.855, 0.222],
@@ -921,53 +689,22 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
         [0, 1.025, -0.207],
       ];
       const full = [...rim, ...mirror(rim.slice(1, -1).reverse(), -1)];
-      const band = full.map(([x, y, z]) => [x * 1.19, y - 0.063, z * 1.18 + 0.005]);
-      const turn = full.map(([x, y, z]) => [x * 1.02, y + 0.005, z * 1.03]);
-      strip(node, 'Bound crew neckline', cloth, [band, turn, full], {
+      const band = full.map(([x, y, z]) => [x * 1.16, y - 0.045, z * 1.17 + 0.005]);
+      const turn = full.map(([x, y, z]) => [x * 1.018, y + 0.005, z * 1.03]);
+      strip(node, 'Folded crew neckline', cloth, [band, turn, full], {
         closed: true,
         steps: 3,
-        tones: [0.62, 1.08],
-        edge: 0.007,
+        tones: [0.76, 1.05],
+        edge: 0.006,
       });
-      for (const side of [-1, 1]) {
-        const raglan = [
-          [0.286, 0.854],
-          [0.375, 0.716],
-          [0.509, 0.548],
-          [0.671, 0.381],
-          [0.834, 0.239],
-          [0.921, 0.111],
-          [0.949, 0.002],
-        ];
-        strip(
-          node,
-          'Raglan sleeve seam',
-          cloth,
-          [
-            fitChest(raglan.map(([x, y]) => [(x - 0.014) * side, y, 0.007])),
-            fitChest(raglan.map(([x, y]) => [x * side, y, 0.017])),
-            fitChest(raglan.map(([x, y]) => [(x + 0.012) * side, y, 0.006])),
-          ],
-          { steps: 2, tones: [1.04, 0.84], edge: 0, tension: 0.22 }
-        );
-      }
-      const gusset = fitChest([
-        [0, 0.673, 0.009],
-        [-0.102, 0.797, 0.012],
-        [0, 0.785, 0.024],
-        [0.102, 0.797, 0.012],
-      ]);
-      cut(
-        node,
-        'Folded neckline gusset',
-        cloth,
-        gusset,
-        [
-          [0.89, 0, 1, 2],
-          [0.97, 0, 2, 3],
-        ],
-        0.004
-      );
+      for (const side of [-1, 1])
+        foldedSeam('Cut sleeve join', [
+          [0.285 * side, 0.854],
+          [0.495 * side, 0.595],
+          [0.722 * side, 0.332],
+          [0.893 * side, 0.119],
+          [0.942 * side, 0.002],
+        ], side);
     }
   }
   const hairstyles: Record<string, Part> = {};
@@ -987,112 +724,122 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
     strip(node, name, hair, [lower, shoulder, top, crown], {
       closed: true,
       steps: 4,
-      tones: [tone, tone * 1.015, tone * 1.045],
-      edge: 0.017,
+      tension: 0.3,
+      softFolds: 0.32,
+      tones: [tone, tone * 1.015, tone * 1.035],
+      edge: 0.009,
     });
-    cut(node, 'Folded crown', hair, crown, [[tone * 1.045, ...crown.map((_, i) => i)]]);
+    const curve = new T.CatmullRomCurve3(crown.map(vector), true, 'catmullrom', 0.3);
+    const roof = curve.getPoints(crown.length * 4).slice(0, -1).map(p => p.toArray());
+    cut(node, 'Folded crown', hair, roof, [[tone * 1.035, ...roof.map((_, i) => i)]]);
     const inside = lower.map(([x, y, z]) => [x * 0.81, y + 0.076, z * 0.77]);
-    strip(node, 'Cut rim return', hair, [inside, lower], { closed: true, steps: 4, tones: [tone * 0.56], edge: 0 });
+    strip(node, 'Cut rim return', hair, [inside, lower], { closed: true, steps: 4, tension: 0.3, tones: [tone * 0.56], edge: 0 });
   }
 
   {
     const node = (hairstyles.sweep = group(portrait, 'Sweep'));
-    const lower = [
-      [0, 2.234, 0.362],
-      [0.258, 2.335, 0.278],
-      [0.416, 1.969, 0.237],
-      [0.512, 1.887, 0.039],
-      [0.548, 1.625, -0.115],
-      [0.42, 1.467, -0.268],
-      [0.025, 1.349, -0.407],
-      [-0.387, 1.423, -0.312],
-      [-0.55, 1.571, -0.067],
-      [-0.543, 1.817, 0.163],
-      [-0.283, 2.087, 0.319],
+    // The brow and nape are cut from one shell. Its low side flares out
+    // before folding under, while the opposite edge rises to the part.
+    const rim = [
+      [-0.133, 2.136, 0.511],
+      [0.136, 2.305, 0.481],
+      [0.284, 2.389, 0.378],
+      [0.508, 2.049, 0.128],
+      [0.566, 1.698, -0.204],
+      [0.315, 1.323, -0.357],
+      [0.068, 1.292, -0.481],
+      [-0.354, 1.334, -0.418],
+      [-0.575, 1.367, -0.224],
+      [-0.683, 1.505, 0.111],
+      [-0.704, 1.675, 0.329],
+      [-0.444, 1.943, 0.493],
     ];
-    const top = [
-      [-0.01, 2.51, 0.163],
-      [0.217, 2.568, 0.091],
-      [0.378, 2.451, 0.107],
-      [0.471, 2.328, -0.007],
-      [0.428, 2.369, -0.154],
-      [0.284, 2.447, -0.265],
-      [0.019, 2.479, -0.281],
-      [-0.255, 2.458, -0.231],
-      [-0.405, 2.357, -0.063],
-      [-0.423, 2.274, 0.092],
-      [-0.256, 2.419, 0.202],
+    const shoulder = [
+      [-0.091, 2.474, 0.328],
+      [0.234, 2.549, 0.308],
+      [0.436, 2.515, 0.156],
+      [0.576, 2.376, -0.035],
+      [0.595, 2.182, -0.203],
+      [0.393, 2.254, -0.386],
+      [0.096, 2.308, -0.411],
+      [-0.292, 2.27, -0.352],
+      [-0.484, 2.25, -0.24],
+      [-0.599, 2.272, -0.073],
+      [-0.613, 2.219, 0.153],
+      [-0.397, 2.339, 0.303],
     ];
-    cap(node, 'Swept cap', lower, top, 0.89);
-    // A single long crescent rolls from the part, across the brow, then
-    // folds back behind the far ear. Three rails shape its convex surface.
-    const topRail = [
-      [0.539, 2.228, -0.132],
-      [0.44, 2.478, -0.07],
-      [0.248, 2.609, 0.005],
-      [-0.055, 2.623, 0.057],
-      [-0.364, 2.478, 0.132],
-      [-0.553, 2.26, 0.148],
-      [-0.601, 2.004, 0.021],
-      [-0.548, 1.79, -0.12],
-      [-0.384, 1.584, -0.278],
+    const crown = [
+      [-0.054, 2.597, 0.131],
+      [0.164, 2.658, 0.135],
+      [0.287, 2.649, 0.014],
+      [0.369, 2.562, -0.101],
+      [0.329, 2.518, -0.197],
+      [0.195, 2.537, -0.257],
+      [0.034, 2.571, -0.265],
+      [-0.156, 2.566, -0.229],
+      [-0.267, 2.54, -0.167],
+      [-0.337, 2.526, -0.083],
+      [-0.322, 2.522, 0.056],
+      [-0.227, 2.552, 0.125],
     ];
-    const bottomRail = [
-      [0.526, 2.153, -0.094],
-      [0.488, 2.316, 0.162],
-      [0.338, 2.368, 0.325],
-      [-0.037, 2.198, 0.474],
-      [-0.382, 2.033, 0.449],
-      [-0.587, 1.884, 0.342],
-      [-0.645, 1.76, 0.174],
-      [-0.561, 1.608, 0.005],
-      [-0.392, 1.505, -0.192],
-    ];
-    const shoulder = topRail.map((p, i) => {
-      const point = vector(p).lerp(vector(bottomRail[i]), 0.41);
-      point.x *= 1.026;
-      point.z += i > 1 && i < 7 ? 0.048 : 0.015;
-      point.y += 0.012;
-      return point.toArray();
+    const round = rim.map((point, i) => {
+      const edge = vector(point);
+      const p = vector(shoulder[i]).lerp(edge, 0.67);
+      // Give the back and near-side wall room to round into the cut edge.
+      if (i >= 3 && i <= 7) {
+        p.x *= 1.035;
+        p.z *= 1.04;
+      }
+      return p.toArray();
     });
-    strip(node, 'Sweeping forelock', hair, [topRail, shoulder, bottomRail], {
-      steps: 5,
-      tones: [1.01, 1.025],
-      edge: 0.022,
-      lined: true,
+    const tension = 0.35;
+    const steps = 4;
+    strip(node, 'Swept cap', hair, [rim, round, shoulder, crown], {
+      closed: true,
+      steps,
+      tension,
+      softFolds: 0.88,
+      tones: [0.985, 1, 1],
+      edge: 0,
     });
-    const innerRim = bottomRail.map(([x, y, z]) => [x * 0.986, y - 0.012, z * 0.986]);
-    const inside = bottomRail.map(([x, y, z]) => [x * 0.84, y + 0.026, z * 0.78]);
-    strip(node, 'Turned-under sweep', hair, [innerRim, inside], { steps: 5, tones: [0.53], edge: 0 });
-    strip(
-      node,
-      'Temple tuck',
-      hair,
-      [
-        [
-          [0.199, 2.573, 0.057],
-          [0.413, 2.45, 0.107],
-          [0.525, 2.271, 0.056],
-          [0.554, 2.075, -0.012],
-          [0.537, 1.868, -0.093],
-        ],
-        [
-          [0.25, 2.49, 0.181],
-          [0.41, 2.318, 0.241],
-          [0.501, 2.145, 0.191],
-          [0.543, 1.969, 0.091],
-          [0.523, 1.814, -0.061],
-        ],
-        [
-          [0.3, 2.357, 0.298],
-          [0.365, 2.204, 0.304],
-          [0.426, 2.026, 0.268],
-          [0.463, 1.922, 0.152],
-          [0.512, 1.826, -0.034],
-        ],
-      ],
-      { steps: 4, tones: [0.96, 0.955], edge: 0.018 }
+    // The roof shares the entire curved boundary of the wall, including
+    // points between the corners of the cardstock pattern.
+    const crownCurve = new T.CatmullRomCurve3(crown.map(vector), true, 'catmullrom', tension);
+    const crownRim = crownCurve.getPoints(crown.length * steps);
+    const roof = paperGeometry(node, 'Folded crown', hair);
+    const apex = vector([0.037, 2.663, -0.051]);
+    const up = vector([-0.03, 1, -0.07]).normalize();
+    for (let i = 0; i < crownRim.length - 1; i++)
+      roof.polygon([crownRim[i], crownRim[i + 1], apex], up, 0.999, [up, up, up]);
+    roof.finish();
+
+    // A second cut runs from the part to the walled return around the ear.
+    // Its edge rides on the same surface as the wrap below it.
+    const templeCurves = [shoulder, round, rim].map(rail =>
+      new T.CatmullRomCurve3(rail.map(vector), true, 'catmullrom', tension)
     );
+    function templeRail(weights: number[]): Pattern {
+      return weights.map((weight, i) => {
+        const t = (1.76 + i * 0.42) / rim.length;
+        const layer = weight < 0.67 ? 0 : 1;
+        const depth = layer ? (weight - 0.67) / 0.33 : weight / 0.67;
+        const p = templeCurves[layer].getPoint(t).lerp(templeCurves[layer + 1].getPoint(t), depth);
+        const outward = vector([p.x, 0, p.z]).normalize();
+        return p.addScaledVector(outward, 0.016).toArray();
+      });
+    }
+    strip(node, 'Temple tuck', hair, [
+      templeRail([0.14, 0.105, 0.12, 0.175, 0.3, 0.52, 0.79]),
+      templeRail([0.145, 0.44, 0.66, 0.8, 0.89, 0.94, 0.81]),
+    ], { steps, tones: [0.956], edge: 0.004, tension });
+    const inside = rim.map(([x, y, z]) => [x * 0.83 + 0.012, y + 0.087, z * 0.74]);
+    strip(node, 'Turned-under sweep', hair, [inside, rim], {
+      closed: true,
+      steps: 4,
+      tension: 0.35,
+      tones: [0.58],
+      edge: 0,
+    });
   }
   {
     const node = (hairstyles.crop = group(portrait, 'Crop'));
@@ -1153,7 +900,7 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
           [0.383, 2.226, 0.181],
         ],
       ],
-      { steps: 3, tones: [1.02, 1.005], edge: 0.011, lined: true }
+      { steps: 3, tones: [1.008, 1], edge: 0.007, lined: true }
     );
   }
   {
@@ -1221,8 +968,8 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
       const rails = [fit(part), fit(turn), fit(edge)];
       strip(node, 'Face-framing bob panel', hair, side > 0 ? rails.reverse() : rails, {
         steps: 4,
-        tones: [0.988, 1.013],
-        edge: 0.013,
+        tones: [0.985, 1.005],
+        edge: 0.008,
         lined: true,
       });
     }
@@ -1276,8 +1023,8 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
       });
       strip(node, name, hair, [outer, spine, inner], {
         steps: 4,
-        tones: [1.02, 0.982],
-        edge: 0.02,
+        tones: [1.013, 0.988],
+        edge: 0.009,
         lined: true,
         tension: 0.4,
       });
@@ -1393,63 +1140,6 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
         [0, 0, 0.002],
       ]
     );
-    lock(
-      'Short temple curl',
-      [
-        [0.316, 2.451, -0.236],
-        [0.422, 2.511, -0.174],
-        [0.507, 2.465, -0.068],
-        [0.551, 2.372, 0.075],
-        [0.532, 2.235, 0.209],
-        [0.462, 2.098, 0.273],
-        [0.396, 2.124, 0.24],
-      ],
-      [
-        [0.41, 2.341, -0.276],
-        [0.508, 2.385, -0.208],
-        [0.567, 2.353, -0.085],
-        [0.581, 2.269, 0.048],
-        [0.558, 2.151, 0.151],
-        [0.481, 2.061, 0.204],
-        [0.401, 2.114, 0.226],
-      ],
-      [
-        [0, 0.006, 0],
-        [0.012, 0.021, -0.014],
-        [0.031, 0.02, 0],
-        [0.032, 0.016, 0.016],
-        [0.022, 0.009, 0.019],
-        [0.013, 0.002, 0.012],
-        [0, 0, 0],
-      ]
-    );
-    lock(
-      'Nape roll',
-      [
-        [-0.363, 2.422, -0.23],
-        [-0.468, 2.459, -0.13],
-        [-0.518, 2.388, 0.02],
-        [-0.541, 2.253, 0.153],
-        [-0.515, 2.148, 0.24],
-        [-0.45, 2.127, 0.231],
-      ],
-      [
-        [-0.41, 2.318, -0.237],
-        [-0.512, 2.343, -0.146],
-        [-0.563, 2.29, -0.006],
-        [-0.571, 2.16, 0.104],
-        [-0.523, 2.081, 0.175],
-        [-0.456, 2.11, 0.222],
-      ],
-      [
-        [0, 0, 0],
-        [-0.02, 0.013, 0],
-        [-0.029, 0.021, 0.011],
-        [-0.018, 0.01, 0.017],
-        [-0.009, 0, 0.01],
-        [0, 0, 0],
-      ]
-    );
   }
   const accessories = {
     none: group(portrait, 'No accessories'),
@@ -1476,14 +1166,19 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
       [0.135, 1.785],
       [0.092, 1.811],
     ];
-    const frame = [...outline, ...inner].map(([x, y]) => [x * s, y, frontZ(x)]);
+    const opening = inner.map(([x, y], i) => [
+      T.MathUtils.lerp(x, outline[i][0], 0.17),
+      T.MathUtils.lerp(y, outline[i][1], 0.17),
+    ]);
+    const frame = [...outline, ...opening].map(([x, y]) => [x * s, y, frontZ(x)]);
     const n = outline.length;
     cut(
       accessories.glasses,
       'Open spectacle frame',
       ink,
       frame,
-      outline.map((_, i) => [1, i, (i + 1) % n, ((i + 1) % n) + n, i + n])
+      outline.map((_, i) => [1, i, (i + 1) % n, ((i + 1) % n) + n, i + n]),
+      0.006
     );
     cut(
       accessories.glasses,
@@ -1501,34 +1196,34 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
         ],
         s
       ),
-      [[1, 0, 1, 2, 3, 4, 5, 6]]
+      [[1, 0, 1, 2, 3, 4, 5, 6]],
+      0.006
     );
-    const bail = [];
-    for (let i = 0; i < 12; i++) {
-      const a = (i * Math.PI) / 6;
-      bail.push([(0.497 + 0.029 * Math.cos(a)) * s, 1.611 + 0.055 * Math.sin(a), 0.111 + 0.016 * Math.cos(a)]);
-    }
+    const bail = Array.from({ length: 8 }, (_, i) => {
+      const turn = i * Math.PI / 4;
+      return [(0.485 + 0.022 * Math.cos(turn)) * s, 1.629 + 0.039 * Math.sin(turn), 0.118];
+    });
     const aperture = bail.map(([x, y, z]) => [
-      (x - 0.497 * s) * 0.6 + 0.497 * s,
-      (y - 1.611) * 0.78 + 1.611,
-      (z - 0.111) * 0.62 + 0.111,
+      (x - 0.485 * s) * 0.62 + 0.485 * s,
+      (y - 1.629) * 0.7 + 1.629,
+      z,
     ]);
     cut(
       accessories.earrings,
       'Earring bail',
       gold,
       [...bail, ...aperture],
-      bail.map((_, i) => [1.02, i, (i + 1) % 12, ((i + 1) % 12) + 12, i + 12]),
-      0.008
+      bail.map((_, i) => [0.94, i, (i + 1) % bail.length, ((i + 1) % bail.length) + bail.length, i + bail.length]),
+      0.006
     );
     const drop = mirror(
       [
-        [0.512, 1.57, 0.118],
-        [0.579, 1.482, 0.121],
-        [0.527, 1.309, 0.136],
-        [0.465, 1.472, 0.156],
-        [0.526, 1.465, 0.179],
-        [0.513, 1.47, 0.105],
+        [0.484, 1.596, 0.12],
+        [0.546, 1.534, 0.116],
+        [0.495, 1.414, 0.131],
+        [0.446, 1.529, 0.146],
+        [0.497, 1.519, 0.162],
+        [0.494, 1.52, 0.107],
       ],
       s
     );
@@ -1557,7 +1252,8 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
       [-0.02, 1.942, 0.549],
       [-0.079, 1.928, 0.521],
     ],
-    [[1, 0, 1, 2, 3, 4, 5, 6, 7]]
+    [[1, 0, 1, 2, 3, 4, 5, 6, 7]],
+    0.006
   );
 
   const cream = new T.Color('#eddbc1');
@@ -1572,8 +1268,13 @@ export function createPerson(T: typeof Three, recipe: AvatarRecipe) {
     const luminance = skin.color.r * 0.2126 + skin.color.g * 0.7152 + skin.color.b * 0.0722;
     const darkStock = 1 - T.MathUtils.smoothstep(luminance, 0.035, 0.15);
     skin.color.multiplyScalar(1 + 0.35 * darkStock);
+    // The warm skin dyes soak into the stock and retain their ochre hue under the softbox.
+    const warmth = Math.max(0, skin.color.r - skin.color.b);
+    skin.color.r *= 1 + 0.06 * warmth;
+    skin.color.g *= 1 - 0.33 * warmth;
+    skin.color.b *= 1 - 0.32 * warmth;
     hair.color.set(next.hairColor);
-    cloth.color.set(next.clothColor);
+    cloth.color.set(next.clothColor).multiplyScalar(0.84);
     lining.color.copy(cloth.color).lerp(cream, 0.52);
     show(outfits, next.outfit, 'jacket');
     show(hairstyles, next.hair, 'sweep');

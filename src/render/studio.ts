@@ -54,7 +54,7 @@ function paperContactShadow() {
 function lightStudio(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
   renderer.setClearColor(0, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.94;
+  renderer.toneMappingExposure = 0.86;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.VSMShadowMap;
   const pmrem = new THREE.PMREMGenerator(renderer);
@@ -67,18 +67,18 @@ function lightStudio(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
     room.dispose();
   }
   scene.environment = environment.texture;
-  scene.environmentIntensity = 0.28;
-  scene.add(new THREE.HemisphereLight(0xfff5e6, 0xd2b6a7, 0.49));
+  scene.environmentIntensity = 0.38;
+  scene.add(new THREE.HemisphereLight(0xfff5e6, 0xd2b6a7, 0.42));
   const target = new THREE.Object3D();
   target.position.set(0, 1.25, 0);
   scene.add(target);
   // Three samples across one softbox keep the nose, lapels and hair edges legible.
   for (const [x, y, z] of [
-    [-6.2, 6.9, 3.55],
-    [-3.8, 7.1, 4.25],
-    [-4.95, 4.9, 4.85]
+    [-5.8, 7.0, 4.85],
+    [-3.45, 6.6, 5.15],
+    [-4.3, 5.05, 5.35]
   ] as const) {
-    const light = new THREE.DirectionalLight(0xfff0df, 0.88);
+    const light = new THREE.DirectionalLight(0xffedde, 0.89);
     light.position.set(x, y, z);
     light.target = target;
     light.castShadow = true;
@@ -92,7 +92,11 @@ function lightStudio(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
     shadow.normalBias = 0.003;
     scene.add(light);
   }
-  const rim = new THREE.DirectionalLight(0xe9f0ff, 0.75);
+  // The matte fill returns a little light to the folded side of the face.
+  const bounce = new THREE.DirectionalLight(0xf7eeeb, 0.26);
+  bounce.position.set(3.6, 2.1, 3.4);
+  scene.add(bounce);
+  const rim = new THREE.DirectionalLight(0xe9f0ff, 0.54);
   rim.position.set(2.2, 3.7, -3.8);
   scene.add(rim);
   return environment;
@@ -153,7 +157,7 @@ async function createStudio(initialRecipe: AvatarRecipe) {
     diffuse!.colorSpace = THREE.SRGBColorSpace;
     for (const map of paper) {
       map.wrapS = map.wrapT = THREE.RepeatWrapping;
-      map.repeat.setScalar(0.67);
+      map.repeat.setScalar(0.96);
       map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     }
     rig.root.traverse((node) => {
@@ -163,7 +167,7 @@ async function createStudio(initialRecipe: AvatarRecipe) {
         if (!(mat instanceof THREE.MeshStandardMaterial)) continue;
         mat.map = diffuse!;
         mat.normalMap = normal!;
-        mat.normalScale.set(0.44, 0.44);
+        mat.normalScale.set(0.37, 0.37);
         mat.roughnessMap = roughness!;
         mat.roughness = 1;
         mat.needsUpdate = true;
